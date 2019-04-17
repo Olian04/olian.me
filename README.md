@@ -1,7 +1,7 @@
 # olian.me
 Home of my soon(tm) to be (new)portfolio site
 
-![](./design.PNG)
+![](./assets/design.PNG)
 
 _Note: Design is taken from the ionic doc page._
 
