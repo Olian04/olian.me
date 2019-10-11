@@ -12,4 +12,9 @@ import { firebaseConfig } from './config'
 
 firebase.initializeApp(firebaseConfig)
 
-export const app = firebase.app()
+const app = firebase.app();
+
+export {
+  firebase,
+  app,
+}
