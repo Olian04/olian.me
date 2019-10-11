@@ -37,3 +37,5 @@ npm run test:unit
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+https://stackoverflow.com/questions/3296644/hiding-the-scroll-bar-on-an-html-page
