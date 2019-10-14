@@ -1,7 +1,7 @@
 # olian.me
 Home of my soon(tm) to be (new)portfolio site
 
-proof of concept demo: https://jsfiddle.net/olian04/bhgcu248/213/
+proof of concept demo: https://jsfiddle.net/olian04/bhgcu248/240/
 
 ## Technical info
 
