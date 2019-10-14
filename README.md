@@ -1,6 +1,8 @@
 # olian.me
 Home of my soon(tm) to be (new)portfolio site
 
+proof of concept demo: https://jsfiddle.net/olian04/bhgcu248/213/
+
 ## Technical info
 
 The page should be written in Vue and should be an offline enabled PWA.
