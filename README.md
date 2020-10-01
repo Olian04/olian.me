@@ -1,4 +1,5 @@
 Badge POC: <https://jsfiddle.net/olian04/c64fdqej/164/>
+Layout POC: <https://jsfiddle.net/b7c0wndv/143/>
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
