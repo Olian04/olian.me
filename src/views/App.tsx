@@ -13,13 +13,10 @@ const Wrapper = styled.div`
 `;
 
 export const App = () => {
-  const scrollY = useScrollPosition();
-  const scrollCutoffPoint = 10;
-
   return (
     <Wrapper>
-      <LandingPage collapsed={scrollY > scrollCutoffPoint} />
-      <ProjectList hidden={scrollY < scrollCutoffPoint} />
+      <LandingPage />
+      <ProjectList />
     </Wrapper>
   )
 };

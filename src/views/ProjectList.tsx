@@ -1,10 +1,6 @@
 import React from 'react';
 
-type Props = {
-  hidden: boolean;
-}
-
-export const ProjectList = ({ hidden }: Props) => {
+export const ProjectList = () => {
   return (
     <div>
     </div>
