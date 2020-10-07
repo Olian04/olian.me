@@ -1,11 +1,14 @@
-import React, {useState, useRef} from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
+import { Preview } from '../components/Preview';
 import { InfoParagraph } from '../components/InfoParagraph';
 import imageOfMyFace from '../assets/Oliver.jpg';
+import { DarkTheme } from '../themes/dark';
 
-const bannerHeight = '45px';
-const previewHeight = '150px';
-const blockHeight = `calc((100vh - ${previewHeight}) / 4)`;
+const bannerHeight = '70px';
+const previewHeight = '85px';
+const remainingHeight = `max(${previewHeight} + 10px, 25vh)`;
+const blockHeight = `calc((100vh - ${remainingHeight}) / 3)`;
 
 type WrapperProps = {
   extended: boolean;
@@ -17,16 +20,6 @@ const Wrapper = styled.div<WrapperProps>`
   width: 100vw;
   height: ${props => props.extended ? '100vh' : bannerHeight};
   box-shadow: 0px 3px 11px 0px rgba(0,0,0,0.44);
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 100%;
-    filter: ${props => props.extended ? 'blur(5px)' : 'none'};
-  }
 `;
 
 type BannerProps = {
@@ -34,12 +27,25 @@ type BannerProps = {
 }
 const Banner = styled.div<BannerProps>`
   position: absolute;
-  display: block;
+  display: ${props => props.extended
+    ? 'block'
+    : 'flex'
+  };
   z-index: 1000000;
   width: 100%;
-  height: ${props => props.extended ? blockHeight : bannerHeight};
-  background: skyblue;
-  transition: height 0.2s ease-out;
+  transition: all 0.2s ease-out;
+  height: ${props => props.extended
+    ? blockHeight
+    : bannerHeight
+  };
+  padding: ${props => props.extended
+    ? '35px'
+    : '0 0 0 35px'
+  };
+  align-content: center;
+  justify-items: center;
+  align-items: center;
+  background: ${DarkTheme.background.E1};
 `;
 
 type DrawerProps = {
@@ -64,33 +70,7 @@ const Block = styled.div`
   z-index: 10;
   width: 100%;
   height: ${blockHeight};
-  background: skyblue;
-`;
-
-const Preview = styled.div`
-  position: relative;
-  display: block;
-  z-index: 5;
-  width: 100%;
-  height: ${previewHeight};
-  background: skyblue;
-  box-shadow: 0px 3px 11px 0px rgba(0,0,0,0.44);
-
-  @media only screen and (max-width: 690px) {
-    & {
-      transform: skewY(11.25deg) translateY(calc(-1 * ${previewHeight} / 1.85));
-    }
-  }
-  @media only screen and (min-width: 690px) {
-    & {
-      transform: skewY(7deg) translateY(calc(-1 * ${previewHeight} / 1.85));
-    }
-  }
-`;
-
-const ParagraphHeading = styled.span`
-  font-weight: bold;
-  font-size: 1.5rem;
+  background: ${DarkTheme.background.E1};
 `;
 
 const Link = styled.a`
@@ -112,12 +92,24 @@ export const LandingPage = () => {
   const [extended, setExtended] = useState(true);
 
   return (
-    <Wrapper extended={extended} onClick={ev => setExtended(false)}>
-      <Banner extended={extended}></Banner>
+    <Wrapper extended={extended}>
+      <Banner extended={extended} onClick={() => setExtended(true)}>
+        <InfoParagraph
+          imgUrl={imageOfMyFace}
+          heading={'Oliver Anteros Linnarsson'}
+          body={<p>Some info about me</p>}
+          small={!extended}
+        />
+      </Banner>
       <Drawer extended={extended}>
         <Block></Block>
         <Block></Block>
-        <Preview />
+        <Preview
+          hidden={!extended}
+          height={remainingHeight}
+          clipHeight={previewHeight}
+          onClick={()  => setExtended(false)}
+          />
       </Drawer>
     </Wrapper>
   );

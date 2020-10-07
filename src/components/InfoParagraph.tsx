@@ -1,10 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
+import { DarkTheme } from '../themes/dark';
 
 const Paragraph = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  color: ${DarkTheme.text.medium};
+`;
+
+const ParagraphHeading = styled.span`
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: ${DarkTheme.text.high};
 `;
 
 type ContainerProps = {
@@ -28,14 +36,16 @@ type ImageProps = {
   small: boolean;
 }
 const Image = styled.img<ImageProps>`
-  width: ${props => props.small ? '50px' : '150px'};
-  height: ${props => props.small ? '50px' : '150px'};
+  position: relative;
+  transition: all 0.2s ease-out;
+  max-width: ${props => props.small ? '30px' : '100px'};
+  max-height: ${props => props.small ? '30px' : '100px'};
   border-radius: ${props => props.small ? '50%' : '10px'};
 `;
 
 type Props = {
   imgUrl: string;
-  heading: JSX.Element;
+  heading: string;
   body: JSX.Element;
   flipped?: boolean;
   hidden?: boolean;
@@ -61,7 +71,9 @@ export const InfoParagraph = ({
         small={small ?? false}
       />
       <Paragraph>
-        {heading}
+        <ParagraphHeading>
+          {heading}
+        </ParagraphHeading>
         {small ? '' : body}
       </Paragraph>
     </Container>
