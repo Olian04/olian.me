@@ -97,7 +97,11 @@ export const LandingPage = () => {
         <InfoParagraph
           imgUrl={imageOfMyFace}
           heading={'Oliver Anteros Linnarsson'}
-          body={<p>Some info about me</p>}
+          body={<>
+            <span><i>He/Him - Olian04</i></span>
+            <span>I'm {thisYear - myBirthYear} years old.</span>
+            <span>I'm currently situated in Stockholm Sweden.</span>
+          </>}
           small={!extended}
         />
       </Banner>
