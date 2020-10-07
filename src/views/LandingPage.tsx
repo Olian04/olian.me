@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { Preview } from '../components/Preview';
 import { InfoParagraph } from '../components/InfoParagraph';
 import imageOfMyFace from '../assets/Oliver.jpg';
+import languageLogo from '../assets/merged-ts-js-logo.jpg';
+import kthLogo from '../assets/kth-logo.png';
 import { DarkTheme } from '../themes/dark';
 
 const bannerHeight = '70px';
@@ -27,10 +29,8 @@ type BannerProps = {
 }
 const Banner = styled.div<BannerProps>`
   position: absolute;
-  display: ${props => props.extended
-    ? 'block'
-    : 'flex'
-  };
+  display: flex;
+  flex-direction: row;
   z-index: 1000000;
   width: 100%;
   transition: all 0.2s ease-out;
@@ -38,14 +38,26 @@ const Banner = styled.div<BannerProps>`
     ? blockHeight
     : bannerHeight
   };
-  padding: ${props => props.extended
-    ? '35px'
-    : '0 0 0 35px'
-  };
-  align-content: center;
-  justify-items: center;
-  align-items: center;
   background: ${DarkTheme.background.E1};
+
+  @media only screen and (max-width: 750px) {
+      & {
+        padding: ${props => props.extended
+          ? '35px'
+          : '0'
+        };
+        justify-content: center;
+      }
+  }
+  @media only screen and (min-width: 751px) {
+      & {
+        padding: ${props => props.extended
+          ? '35px'
+          : '0 0 0 25px'
+        };
+        justify-content: none;
+      }
+  }
 `;
 
 type DrawerProps = {
@@ -68,6 +80,8 @@ const Block = styled.div`
   position: relative;
   display: block;
   z-index: 10;
+  padding: 35px;
+  margin: 0;
   width: 100%;
   height: ${blockHeight};
   background: ${DarkTheme.background.E1};
@@ -86,28 +100,49 @@ const Link = styled.a`
 
 const thisYear = new Date().getFullYear();
 const myBirthYear = 1995;
-const myEmail = 'oliverli@kth.se';
 
 export const LandingPage = () => {
   const [extended, setExtended] = useState(true);
 
   return (
     <Wrapper extended={extended}>
-      <Banner extended={extended} onClick={() => setExtended(true)}>
+      <Banner extended={extended}
+        onClick={() => setExtended(true)}
+        onTouchStart={() => setExtended(true)}
+        >
         <InfoParagraph
           imgUrl={imageOfMyFace}
           heading={'Oliver Anteros Linnarsson'}
           body={<>
             <span><i>He/Him - Olian04</i></span>
-            <span>I'm {thisYear - myBirthYear} years old.</span>
-            <span>I'm currently situated in Stockholm Sweden.</span>
+            <span>{thisYear - myBirthYear} years old.</span>
+            <span>Stockholm Sweden.</span>
           </>}
           small={!extended}
         />
       </Banner>
       <Drawer extended={extended}>
-        <Block></Block>
-        <Block></Block>
+        <Block>
+          <InfoParagraph
+            imgUrl={kthLogo}
+            heading={'Employment'}
+            body={<>
+              <span>Something about being a student and working as a teaching assistant</span>
+            </>}
+            hidden={!extended}
+            flipped={true}
+          />
+        </Block>
+        <Block>
+          <InfoParagraph
+            imgUrl={languageLogo}
+            heading={'Language'}
+            body={<>
+              <span>Something about javascript and typescript</span>
+            </>}
+            hidden={!extended}
+          />
+        </Block>
         <Preview
           hidden={!extended}
           height={remainingHeight}

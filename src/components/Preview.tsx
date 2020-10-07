@@ -54,7 +54,7 @@ const DiagonalClip = styled.div<DiagonalClipProps>`
 `;
 
 type Props = {
-  onClick: (ev: React.MouseEvent) => void;
+  onClick: () => void;
   height: string;
   clipHeight: string;
   hidden: boolean;
@@ -72,8 +72,13 @@ export const Preview = ({
       height={height} 
       onClick={(ev) => {
         if (ev.target !== ev.currentTarget) return;
-        onClick(ev);
-      }}>
+        onClick();
+      }}
+      onTouchStart={(ev) => {
+        if (ev.target !== ev.currentTarget) return;
+        onClick();
+      }}
+      >
       <DiagonalClip height={clipHeight} />
     </ShadowWrapper>
   );

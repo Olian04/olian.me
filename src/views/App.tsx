@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import useScrollPosition from '@react-hook/window-scroll';
 import { LandingPage } from './LandingPage';
 import { ProjectList } from './ProjectList';
 import { DarkTheme } from '../themes/dark';
