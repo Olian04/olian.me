@@ -3,6 +3,12 @@ Layout POC: <https://jsfiddle.net/b7c0wndv/143/>
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+![](https://github-readme-stats.vercel.app/api?username=olian04&count_private=true&show_icons=true&theme=radical)
+
+![](https://github-readme-stats.vercel.app/api/pin/?username=olian04&repo=better-logging&show_owner=true&theme=radical)
+
+![](https://github-readme-stats.vercel.app/api/top-langs/?username=olian04&layout=compact&theme=radical)
+
 ## Available Scripts
 
 In the project directory, you can run:
