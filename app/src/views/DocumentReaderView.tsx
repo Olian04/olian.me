@@ -74,6 +74,7 @@ export const DocumentReaderView = () => {
       fullWidth={true}
       style={{
         paddingTop: '20px',
+        paddingBottom: '20px',
       }}
     >
       <Paper className={classes.heading}>
