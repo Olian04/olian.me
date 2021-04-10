@@ -8,19 +8,30 @@ import clsx from 'clsx';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    icon: {
+    subjectIcon: {
       color: theme.palette.info.light,
     },
+    editIcon: {
+      color: theme.palette.info.light,
+      cursor: 'pointer',
+
+      '&:hover': {
+        color: theme.palette.primary.main,
+      },
+    },
     heading: {
-      backgroundColor: theme.palette.background.default,
+      backgroundColor: '#0d1117',
       color: theme.palette.text.primary,
       borderColor: `${theme.palette.info.light} !important`,
       padding: '10px',
 
       '&:hover': {
-        backgroundColor: theme.palette.background.default,
+        backgroundColor: '#0d1117',
         boxShadow: 'none',
       },
+    },
+    document: {
+      backgroundColor: theme.palette.background.default,
     },
   })
 );
@@ -30,7 +41,28 @@ const demoMarkdown = `
 
 This is a markdown document
 
-With __bold__ and *cursive* text.
+A paragraph with *emphasis* and **strong importance**.
+
+> A block quote with ~strikethrough~ and a URL: https://reactjs.org.
+
+* Lists
+* [ ] todo
+* [x] done
+
+A table:
+
+| a | b | c | d |
+|:-:|:-:|:-:|:--:|
+| 1 | 2| 3 | 4 |
+| 1 | 2| 3 | 4 |
+| 1 | 2| 3 | 4 |
+| 1 | 2| 3 | 4 |
+
+\`\`\`js
+const a = 10;
+const b =  32;
+console.log(a + b);
+\`\`\`
 `.trim();
 
 export const DocumentReaderView = () => {
@@ -47,13 +79,14 @@ export const DocumentReaderView = () => {
       <Paper className={classes.heading}>
         <Grid container justify="space-between">
           <Grid item xs container alignItems="center">
-            <SubjectIcon className={classes.icon} />
+            <SubjectIcon className={classes.subjectIcon} />
             <span style={{ paddingLeft: '5px' }}>README.md</span>
           </Grid>
-          <EditIcon className={classes.icon} />
+          <EditIcon className={classes.editIcon} />
         </Grid>
       </Paper>
       <Paper
+        className={classes.document}
         style={{
           padding: '0px',
           paddingLeft: '30px',
