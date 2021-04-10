@@ -19,7 +19,8 @@
     "react-markdown": "^5.0.3",
     "react-router-dom": "^5.2.0",
     "recoil": "^0.2.0",
-    "remark-gfm": "^1.0.0"
+    "remark-gfm": "^1.0.0",
+    "remark-html": "^13.0.1"
   },
   "devDependencies": {
     "@types/react": "^17.0.0",
