@@ -13,3 +13,20 @@ export const loginWithGithub = async (): Promise<boolean> => {
 };
 
 export const logout = () => auth.signOut();
+
+export const isLoggedIn = () => auth.currentUser !== null;
+
+export const getCurrentUser = () => auth.currentUser;
+
+export const onLoginStatusChange = (
+  event: 'login' | 'logout',
+  cb: () => void
+) => {
+  auth.onAuthStateChanged(() => {
+    if (event === 'login' && isLoggedIn()) {
+      cb();
+    } else if (event === 'logout' && !isLoggedIn()) {
+      cb();
+    }
+  });
+};
