@@ -17,12 +17,8 @@ export const App = () => {
             paddingTop: '20px',
           }}
         >
-          <React.Suspense fallback={<CircularProgress color="primary" />}>
-            <DocumentNavigatorView />
-          </React.Suspense>
-          <React.Suspense fallback={<CircularProgress color="primary" />}>
-            <DocumentReaderView />
-          </React.Suspense>
+          <DocumentNavigatorView />
+          <DocumentReaderView />
         </Grid>
       </Container>
     </Router>
