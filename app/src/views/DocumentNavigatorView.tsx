@@ -1,14 +1,18 @@
 import React from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { Paper, Grid } from '@material-ui/core';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
 
 import {
   currentFolderData,
-  currentFolderID,
+  currentFolderIDState,
   foldersInCurrentFolder,
 } from '../state/folder';
-import { currentFileID, fileData, filesInCurrentFolder } from '../state/file';
+import {
+  currentFileIDState,
+  fileData,
+  filesInCurrentFolder,
+} from '../state/file';
 import { DocumentNavigatorGroup } from '../components/DocumentNavigator/DocumentNavigatorGroup';
 import { DocumentNavigatorButton } from '../components/DocumentNavigator/DocumentNavigatorButton';
 
@@ -33,8 +37,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export const DocumentNavigatorView = () => {
   const classes = useStyles();
-  const setCurrentFolderID = useSetRecoilState(currentFolderID);
-  const setCurrentFileID = useSetRecoilState(currentFileID);
+  const setCurrentFolderID = useSetRecoilState(currentFolderIDState);
+  const setCurrentFileID = useSetRecoilState(currentFileIDState);
   const currentFolder = useRecoilValue(currentFolderData);
   const folders = useRecoilValue(foldersInCurrentFolder);
   const files = useRecoilValue(filesInCurrentFolder);
@@ -47,11 +51,13 @@ export const DocumentNavigatorView = () => {
           <span>Olian04</span>
         </Grid>
       </Paper>
-      <DocumentNavigatorButton
-        variant="folder"
-        name=".."
-        onClick={() => setCurrentFolderID(currentFolder.parent)}
-      />
+      {currentFolder.id === currentFolder.parent ? null : (
+        <DocumentNavigatorButton
+          variant="folder"
+          name=".."
+          onClick={() => setCurrentFolderID(currentFolder.parent)}
+        />
+      )}
       {folders.map((folder, i) => (
         <DocumentNavigatorButton
           key={`folder-${i}`}

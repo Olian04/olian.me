@@ -3,7 +3,7 @@ import { getFile, getRootReadme } from '../services/firebase/firestore';
 import { File } from '../types/File';
 import { currentFolderData } from './folder';
 
-export const currentFileID = atom<string | null>({
+export const currentFileIDState = atom<string | null>({
   key: 'CURRENT_FILE_ID',
   default: null,
 });
@@ -11,7 +11,7 @@ export const currentFileID = atom<string | null>({
 export const currentFileData = selector<File>({
   key: 'CURRENT_FILE_DATA',
   get: ({ get }) => {
-    const id = get(currentFileID);
+    const id = get(currentFileIDState);
     if (id === null) {
       return getRootReadme();
     }
