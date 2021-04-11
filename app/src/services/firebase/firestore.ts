@@ -59,8 +59,6 @@ export const getFile = async (id: string) => {
     lastEdited: timestampToDate(doc.get('lastEdited')),
   };
 
-  console.log(file);
-
   return file;
 };
 
