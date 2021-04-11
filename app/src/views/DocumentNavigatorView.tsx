@@ -1,10 +1,19 @@
 import React from 'react';
-import { subDays, subHours } from 'date-fns';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { Paper, Grid } from '@material-ui/core';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
 
+import {
+  currentFolderData,
+  folderData,
+  currentFolderID,
+  foldersInCurrentFolder,
+} from '../state/folder';
+import { currentFileID, fileData, filesInCurrentFolder } from '../state/file';
 import { DocumentNavigatorGroup } from '../components/DocumentNavigator/DocumentNavigatorGroup';
 import { DocumentNavigatorButton } from '../components/DocumentNavigator/DocumentNavigatorButton';
+import { Folder } from '../types/Folder';
+import { File } from '../types/File';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,6 +36,11 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export const DocumentNavigatorView = () => {
   const classes = useStyles();
+  const setCurrentFolderID = useSetRecoilState(currentFolderID);
+  const setCurrentFileID = useSetRecoilState(currentFileID);
+  const currentFolder = useRecoilValue(currentFolderData);
+  const folders = useRecoilValue(foldersInCurrentFolder);
+  const files = useRecoilValue(filesInCurrentFolder);
 
   return (
     <DocumentNavigatorGroup>
@@ -36,27 +50,28 @@ export const DocumentNavigatorView = () => {
           <span>Olian04</span>
         </Grid>
       </Paper>
-      <DocumentNavigatorButton variant="folder" name=".." />
       <DocumentNavigatorButton
         variant="folder"
-        name="projects"
-        timestamp={new Date()}
+        name=".."
+        onClick={() => setCurrentFolderID(currentFolder.parent)}
       />
-      <DocumentNavigatorButton
-        variant="folder"
-        name="blog"
-        timestamp={subHours(new Date(), 2)}
-      />
-      <DocumentNavigatorButton
-        variant="file"
-        name="ABOUT.md"
-        timestamp={subDays(new Date(), 3)}
-      />
-      <DocumentNavigatorButton
-        variant="file"
-        name="README.md"
-        timestamp={subHours(new Date(), 10)}
-      />
+      {folders.map((folder, i) => (
+        <DocumentNavigatorButton
+          key={`folder-${i}`}
+          variant="folder"
+          name={folder.name}
+          onClick={() => setCurrentFolderID(folder.id)}
+        />
+      ))}
+      {files.map((file, i) => (
+        <DocumentNavigatorButton
+          key={`file-${i}`}
+          variant="file"
+          name={file.name}
+          timestamp={file.lastEdited}
+          onClick={() => setCurrentFileID(file.id)}
+        />
+      ))}
     </DocumentNavigatorGroup>
   );
 };
