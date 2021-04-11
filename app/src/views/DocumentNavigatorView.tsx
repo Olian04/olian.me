@@ -5,15 +5,12 @@ import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
 
 import {
   currentFolderData,
-  folderData,
   currentFolderID,
   foldersInCurrentFolder,
 } from '../state/folder';
 import { currentFileID, fileData, filesInCurrentFolder } from '../state/file';
 import { DocumentNavigatorGroup } from '../components/DocumentNavigator/DocumentNavigatorGroup';
 import { DocumentNavigatorButton } from '../components/DocumentNavigator/DocumentNavigatorButton';
-import { Folder } from '../types/Folder';
-import { File } from '../types/File';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
