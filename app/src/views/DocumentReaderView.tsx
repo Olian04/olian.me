@@ -1,6 +1,6 @@
 import React from 'react';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
-import { ButtonGroup, Paper, Grid } from '@material-ui/core';
+import { ButtonGroup, Paper, Grid, IconButton } from '@material-ui/core';
 import { Edit as EditIcon, Subject as SubjectIcon } from '@material-ui/icons';
 import { RenderMarkdown } from '../components/RenderMarkdown';
 import { useRecoilValue } from 'recoil';
@@ -57,7 +57,9 @@ export const DocumentReaderView = () => {
             <SubjectIcon className={classes.subjectIcon} />
             <span style={{ paddingLeft: '5px' }}>README.md</span>
           </Grid>
-          <EditIcon className={classes.editIcon} />
+          <IconButton className={classes.editIcon}>
+            <EditIcon />
+          </IconButton>
         </Grid>
       </Paper>
       <Paper
