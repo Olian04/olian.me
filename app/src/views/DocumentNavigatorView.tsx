@@ -1,14 +1,7 @@
 import React from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import {
-  Paper,
-  Grid,
-  Button,
-  Typography,
-  CircularProgress,
-} from '@material-ui/core';
+import { Paper, Grid, CircularProgress } from '@material-ui/core';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
 
 import { useGithubAuth } from '../hooks/use-github-auth';
 import {
@@ -19,6 +12,7 @@ import {
 import { currentFileIDState, filesInCurrentFolder } from '../state/file';
 import { DocumentNavigatorGroup } from '../components/DocumentNavigator/DocumentNavigatorGroup';
 import { DocumentNavigatorButton } from '../components/DocumentNavigator/DocumentNavigatorButton';
+import { DocumentNavigatorHeading } from '../components/DocumentNavigatorHeading';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -46,50 +40,21 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Heading = (props: { className?: string }) => {
-  const classes = useStyles();
-  const [user, startLoginSequence, logout] = useGithubAuth();
-  const { className, ...innerProps } = props;
-
-  return (
-    <Paper className={clsx(classes.heading, className ?? '')} {...innerProps}>
-      <Grid container justify="space-between">
-        <Grid item xs container direction="column" justify="flex-start">
-          <Typography variant="h6">Olian.me</Typography>
-          {user ? (
-            <Typography variant="subtitle1" className={classes.userName}>
-              Signed in as: {user.name}
-            </Typography>
-          ) : null}
-        </Grid>
-        <Grid item xs container alignItems="center" justify="flex-end">
-          {user ? (
-            <>
-              <Button variant="text" onClick={logout}>
-                Sign Out
-              </Button>
-            </>
-          ) : (
-            <Button variant="text" onClick={startLoginSequence}>
-              Sign in
-            </Button>
-          )}
-        </Grid>
-      </Grid>
-    </Paper>
-  );
-};
-
 export const Content = () => {
   const setCurrentFolderID = useSetRecoilState(currentFolderIDState);
   const setCurrentFileID = useSetRecoilState(currentFileIDState);
   const currentFolder = useRecoilValue(currentFolderData);
   const folders = useRecoilValue(foldersInCurrentFolder);
   const files = useRecoilValue(filesInCurrentFolder);
+  const [user, startLoginSequence, logout] = useGithubAuth();
 
   return (
     <DocumentNavigatorGroup>
-      <Heading />
+      <DocumentNavigatorHeading
+        user={user}
+        onSignIn={startLoginSequence}
+        onSignOut={logout}
+      />
       {currentFolder.id === currentFolder.parent ? null : (
         <DocumentNavigatorButton
           variant="folder"
@@ -120,10 +85,15 @@ export const Content = () => {
 
 const Loading = () => {
   const classes = useStyles();
+  const [user, startLoginSequence, logout] = useGithubAuth();
 
   return (
     <DocumentNavigatorGroup>
-      <Heading />
+      <DocumentNavigatorHeading
+        user={user}
+        onSignIn={startLoginSequence}
+        onSignOut={logout}
+      />
       <Paper className={classes.loadingPlaceholder}>
         <Grid container justify="space-around" alignContent="center">
           <CircularProgress color="primary" />

@@ -1,5 +1,9 @@
-import { selectorFamily, atom, selector } from 'recoil';
-import { getFile, getRootReadme } from '../services/firebase/firestore';
+import { selectorFamily, atom, selector, atomFamily } from 'recoil';
+import {
+  getFile,
+  getRootReadme,
+  setFile,
+} from '../services/firebase/firestore';
 import { File } from '../types/File';
 import { currentFolderData } from './folder';
 
@@ -27,9 +31,12 @@ export const filesInCurrentFolder = selector<File[]>({
   },
 });
 
-export const fileData = selectorFamily<File, string>({
+export const fileData = atomFamily<File, string>({
   key: 'FILE_DATA',
-  get: (ref: string) => async () => {
-    return getFile(ref);
-  },
+  default: selectorFamily({
+    key: 'FILE_DATA/DEFAULT',
+    get: (id: string) => async () => {
+      return getFile(id);
+    },
+  }),
 });

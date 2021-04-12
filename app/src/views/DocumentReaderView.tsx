@@ -1,43 +1,16 @@
 import React from 'react';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
-import {
-  ButtonGroup,
-  Paper,
-  Grid,
-  IconButton,
-  CircularProgress,
-} from '@material-ui/core';
-import { Edit as EditIcon, Subject as SubjectIcon } from '@material-ui/icons';
-import { useRecoilValue } from 'recoil';
-import clsx from 'clsx';
+import { ButtonGroup, Paper, Grid, CircularProgress } from '@material-ui/core';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 
+import { DocumentReaderHeading } from '../components/DucumentReaderHeading';
 import { RenderMarkdown } from '../components/RenderMarkdown';
-import { currentFileData } from '../state/file';
+import { currentFileData, fileData } from '../state/file';
+import { getFile, setFile } from '../services/firebase/firestore';
+import { userIsAuthenticatedState } from '../state/user';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    subjectIcon: {
-      color: theme.palette.info.light,
-    },
-    editIcon: {
-      color: theme.palette.info.light,
-      cursor: 'pointer',
-
-      '&:hover': {
-        color: theme.palette.primary.main,
-      },
-    },
-    heading: {
-      backgroundColor: '#0d1117',
-      color: theme.palette.text.primary,
-      borderColor: `${theme.palette.info.light} !important`,
-      padding: '10px',
-
-      '&:hover': {
-        backgroundColor: '#0d1117',
-        boxShadow: 'none',
-      },
-    },
     document: {
       backgroundColor: theme.palette.background.default,
       padding: '0px',
@@ -51,28 +24,17 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Heading = (props: { fileName: string; className?: string }) => {
-  const classes = useStyles();
-  const { fileName, className, ...innerProps } = props;
-
-  return (
-    <Paper className={clsx(classes.heading, className ?? '')} {...innerProps}>
-      <Grid container justify="space-between">
-        <Grid item xs container alignItems="center">
-          <SubjectIcon className={classes.subjectIcon} />
-          <span style={{ paddingLeft: '5px' }}>{fileName}</span>
-        </Grid>
-        <IconButton className={classes.editIcon}>
-          <EditIcon />
-        </IconButton>
-      </Grid>
-    </Paper>
-  );
-};
-
 const Content = () => {
   const classes = useStyles();
   const currentFile = useRecoilValue(currentFileData);
+  const isAuthenticated = useRecoilValue(userIsAuthenticatedState);
+
+  const touchFile = useRecoilCallback(({ set, snapshot }) => async () => {
+    const currentValue = await snapshot.getPromise(currentFileData);
+    const id = await setFile(currentValue); // No changes, but will cause an update to timestamp
+    const newValue = await getFile(id);
+    set(fileData(id), newValue);
+  });
 
   return (
     <ButtonGroup
@@ -84,7 +46,11 @@ const Content = () => {
         marginBottom: '20px',
       }}
     >
-      <Heading fileName={currentFile.name} />
+      <DocumentReaderHeading
+        fileName={currentFile.name}
+        isAuthenticated={isAuthenticated}
+        onClickEdit={touchFile}
+      />
       <Paper className={classes.document}>
         <RenderMarkdown markdown={currentFile.content} />
       </Paper>
@@ -94,6 +60,7 @@ const Content = () => {
 
 const Loading = () => {
   const classes = useStyles();
+  const isAuthenticated = useRecoilValue(userIsAuthenticatedState);
 
   return (
     <ButtonGroup
@@ -105,7 +72,7 @@ const Loading = () => {
         marginBottom: '20px',
       }}
     >
-      <Heading fileName="" />
+      <DocumentReaderHeading fileName="" isAuthenticated={isAuthenticated} />
       <Paper className={classes.loadingPlaceholder}>
         <Grid container justify="space-around" alignContent="center">
           <CircularProgress color="primary" />

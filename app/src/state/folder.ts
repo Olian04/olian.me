@@ -1,5 +1,9 @@
-import { atom, selector, selectorFamily } from 'recoil';
-import { getFolder, getRootFolder } from '../services/firebase/firestore';
+import { atom, atomFamily, selector, selectorFamily } from 'recoil';
+import {
+  getFolder,
+  getRootFolder,
+  setFolder,
+} from '../services/firebase/firestore';
 import { Folder } from '../types/Folder';
 
 export const currentFolderIDState = atom<string | null>({
@@ -26,9 +30,12 @@ export const foldersInCurrentFolder = selector<Folder[]>({
   },
 });
 
-export const folderData = selectorFamily<Folder, string>({
+export const folderData = atomFamily<Folder, string>({
   key: 'FOLDER_DATA',
-  get: (ref: string) => async () => {
-    return getFolder(ref);
-  },
+  default: selectorFamily({
+    key: 'FOLDER_DATA/DEFAULT',
+    get: (id: string) => async () => {
+      return getFolder(id);
+    },
+  }),
 });

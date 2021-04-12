@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { onLoginStatusChange } from '../services/firebase/auth';
-import { isAuthenticated } from '../state/user';
+import { userIsAuthenticatedState } from '../state/user';
 
 export const AuthProvider = () => {
-  const setIsAuth = useSetRecoilState(isAuthenticated);
+  const setIsAuth = useSetRecoilState(userIsAuthenticatedState);
 
   useEffect(() => {
     onLoginStatusChange('login', () => {
