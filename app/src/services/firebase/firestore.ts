@@ -11,8 +11,16 @@ const store = app.firestore();
 const refToId = (ref: Ref) => ref.id;
 const refArrayToIdArray = (refs: Ref[]) => refs.map(refToId);
 
+const idToRef = (path: string, id: string) => store.doc(`${path}${id}`);
+const idArrayToRefArray = (path: string, ids: string[]) =>
+  ids.map((id) => idToRef(path, id));
+
 const timestampToDate = (timestamp: { seconds: number }) =>
   new Date(timestamp.seconds * 1000);
+
+const dateToTimestamp = (date: Date): { seconds: number } => ({
+  seconds: Math.floor(date.getTime() / 1000),
+});
 
 export const getRootFolder = async () => {
   const {
@@ -49,7 +57,7 @@ export const getFile = async (id: string) => {
   const doc = await store.doc(`/documents/${id}`).get();
 
   if (doc.exists === false) {
-    throw new Error(`Unknown folder ${id}`);
+    throw new Error(`Unknown file ${id}`);
   }
 
   const file: File = {
@@ -83,4 +91,64 @@ export const getRootReadme = async () => {
   };
 
   return file;
+};
+
+const updateFile = async (file: Pick<File, 'id' | 'name' | 'content'>) =>
+  store.doc(`/documents/${file.id}`).set({
+    name: file.name,
+    content: file.content,
+    lastEdited: dateToTimestamp(new Date()),
+  });
+
+const createFile = async (
+  file: Pick<File, 'id' | 'name' | 'content'>
+): Promise<string> =>
+  store
+    .collection(`/documents`)
+    .add({
+      name: file.name,
+      content: file.content,
+      lastEdited: dateToTimestamp(new Date()),
+    })
+    .then((doc) => doc.id);
+
+export const setFile = async (file: File) => {
+  const ref = store.doc(`/documents/${file.id}`);
+  const doc = await ref.get();
+
+  if (doc.exists) {
+    await updateFile(file);
+    return file.id;
+  }
+  return createFile(file);
+};
+
+const updateFolder = async (folder: Folder) =>
+  store.doc(`/folders/${folder.id}`).set({
+    name: folder.name,
+    parent: idToRef('/folders/', folder.parent),
+    files: idArrayToRefArray('/documents/', folder.files),
+    folders: idArrayToRefArray('/folders/', folder.folders),
+  });
+
+const createFolder = async (folder: Folder): Promise<string> =>
+  store
+    .collection(`/folders`)
+    .add({
+      name: folder.name,
+      parent: idToRef('/folders/', folder.parent),
+      files: idArrayToRefArray('/documents/', folder.files),
+      folders: idArrayToRefArray('/folders/', folder.folders),
+    })
+    .then((doc) => doc.id);
+
+export const setFolder = async (folder: Folder) => {
+  const ref = store.doc(`/folders/${folder.id}`);
+  const doc = await ref.get();
+
+  if (doc.exists) {
+    updateFolder(folder);
+    return folder.id;
+  }
+  return createFolder(folder);
 };

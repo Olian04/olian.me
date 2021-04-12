@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import 'fontsource-roboto';
-import './index.css';
 import { RecoilRoot } from 'recoil';
+import 'fontsource-roboto';
+
+import './index.css';
 import { ThemeProvider } from './providers/ThemeProvider';
 import { AuthProvider } from './providers/AuthProvider';
 import { NavProvider } from './providers/NavProvider';
