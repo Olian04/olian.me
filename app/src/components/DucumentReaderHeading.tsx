@@ -1,19 +1,13 @@
 import React from 'react';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
+import { Paper, Grid, IconButton } from '@material-ui/core';
 import {
-  ButtonGroup,
-  Paper,
-  Grid,
-  IconButton,
-  CircularProgress,
-} from '@material-ui/core';
-import { Edit as EditIcon, Subject as SubjectIcon } from '@material-ui/icons';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+  Edit as EditIcon,
+  Subject as SubjectIcon,
+  Save as SaveIcon,
+  Clear as DiscardIcon,
+} from '@material-ui/icons';
 import clsx from 'clsx';
-
-import { RenderMarkdown } from '../components/RenderMarkdown';
-import { currentFileData, fileData } from '../state/file';
-import { getFile, setFile } from '../services/firebase/firestore';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -45,7 +39,11 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   fileName: string;
   isAuthenticated: boolean;
+  isEditActive: boolean;
+  isLoading: boolean;
   onClickEdit?: () => void;
+  onClickSave?: () => void;
+  onClickDiscard?: () => void;
   className?: string;
 }
 
@@ -54,7 +52,11 @@ export const DocumentReaderHeading = (props: Props) => {
     fileName,
     className,
     isAuthenticated,
+    isEditActive,
+    isLoading,
     onClickEdit,
+    onClickSave,
+    onClickDiscard,
     ...innerProps
   } = props;
   const classes = useStyles();
@@ -67,9 +69,32 @@ export const DocumentReaderHeading = (props: Props) => {
           <span style={{ paddingLeft: '5px' }}>{fileName}</span>
         </Grid>
         {isAuthenticated ? (
-          <IconButton className={classes.editIcon} onClick={onClickEdit}>
-            <EditIcon />
-          </IconButton>
+          isEditActive ? (
+            <>
+              <IconButton
+                className={classes.editIcon}
+                onClick={onClickSave}
+                disabled={isLoading}
+              >
+                <SaveIcon />
+              </IconButton>
+              <IconButton
+                className={classes.editIcon}
+                onClick={onClickDiscard}
+                disabled={isLoading}
+              >
+                <DiscardIcon />
+              </IconButton>
+            </>
+          ) : (
+            <IconButton
+              className={classes.editIcon}
+              onClick={onClickEdit}
+              disabled={isLoading}
+            >
+              <EditIcon />
+            </IconButton>
+          )
         ) : null}
       </Grid>
     </Paper>

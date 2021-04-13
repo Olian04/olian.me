@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
 import { ButtonGroup, Paper, Grid, CircularProgress } from '@material-ui/core';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
 
 import { DocumentReaderHeading } from '../components/DucumentReaderHeading';
 import { RenderMarkdown } from '../components/RenderMarkdown';
+import { EditDocument } from '../components/EditDocument';
 import { currentFileData, fileData } from '../state/file';
 import { getFile, setFile } from '../services/firebase/firestore';
 import { userIsAuthenticatedState } from '../state/user';
+import { editorContentState, editorIsActiveState } from '../state/editor';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -28,12 +30,28 @@ const Content = () => {
   const classes = useStyles();
   const currentFile = useRecoilValue(currentFileData);
   const isAuthenticated = useRecoilValue(userIsAuthenticatedState);
+  const [isEditActive, setIsEditActive] = useRecoilState(editorIsActiveState);
+  const [editContent, setEditContent] = useRecoilState(editorContentState);
 
-  const touchFile = useRecoilCallback(({ set, snapshot }) => async () => {
+  const activateEdit = () => {
+    setEditContent(currentFile.content);
+    setIsEditActive(true);
+  };
+  const discardChanges = () => {
+    setEditContent('');
+    setIsEditActive(false);
+  };
+
+  const saveChanges = useRecoilCallback(({ set, snapshot }) => async () => {
     const currentValue = await snapshot.getPromise(currentFileData);
-    const id = await setFile(currentValue); // No changes, but will cause an update to timestamp
+    const id = await setFile({
+      ...currentValue,
+      content: editContent,
+    });
     const newValue = await getFile(id);
     set(fileData(id), newValue);
+    set(editorIsActiveState, false);
+    set(editorContentState, '');
   });
 
   return (
@@ -49,10 +67,21 @@ const Content = () => {
       <DocumentReaderHeading
         fileName={currentFile.name}
         isAuthenticated={isAuthenticated}
-        onClickEdit={touchFile}
+        isEditActive={isEditActive}
+        isLoading={false}
+        onClickEdit={activateEdit}
+        onClickSave={saveChanges}
+        onClickDiscard={discardChanges}
       />
       <Paper className={classes.document}>
-        <RenderMarkdown markdown={currentFile.content} />
+        {isAuthenticated && isEditActive ? (
+          <EditDocument
+            initialContent={currentFile.content}
+            onChange={setEditContent}
+          />
+        ) : (
+          <RenderMarkdown markdown={currentFile.content} />
+        )}
       </Paper>
     </ButtonGroup>
   );
@@ -61,6 +90,7 @@ const Content = () => {
 const Loading = () => {
   const classes = useStyles();
   const isAuthenticated = useRecoilValue(userIsAuthenticatedState);
+  const isEditActive = useRecoilValue(editorIsActiveState);
 
   return (
     <ButtonGroup
@@ -72,7 +102,12 @@ const Loading = () => {
         marginBottom: '20px',
       }}
     >
-      <DocumentReaderHeading fileName="" isAuthenticated={isAuthenticated} />
+      <DocumentReaderHeading
+        fileName=""
+        isAuthenticated={isAuthenticated}
+        isEditActive={isEditActive}
+        isLoading={true}
+      />
       <Paper className={classes.loadingPlaceholder}>
         <Grid container justify="space-around" alignContent="center">
           <CircularProgress color="primary" />

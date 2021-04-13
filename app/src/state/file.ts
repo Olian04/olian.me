@@ -1,9 +1,5 @@
 import { selectorFamily, atom, selector, atomFamily } from 'recoil';
-import {
-  getFile,
-  getRootReadme,
-  setFile,
-} from '../services/firebase/firestore';
+import { getFile, getRootReadme } from '../services/firebase/firestore';
 import { File } from '../types/File';
 import { currentFolderData } from './folder';
 

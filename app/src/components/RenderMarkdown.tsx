@@ -1,18 +1,52 @@
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { cb as style } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
 import gfm from 'remark-gfm';
 import html from 'remark-html';
 
+//@ts-ignore
+import ReactMarkdown from 'react-markdown/with-html';
+
+const CodeBlock = (props: { language: string; value: string }) => {
+  return (
+    <SyntaxHighlighter language={props.language} style={style}>
+      {props.value}
+    </SyntaxHighlighter>
+  );
+};
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     document: {
+      marginBottom: '15px',
       '& a': {
         color: theme.palette.primary.main,
         textDecoration: 'none',
       },
       '& a:hover': {
         textDecoration: 'underline',
+      },
+      '& p code': {
+        borderRadius: `${theme.shape.borderRadius}px`,
+        border: `1px solid ${theme.palette.background.paper} !important`,
+        padding: '2px',
+        paddingLeft: '5px',
+        paddingRight: '5px',
+      },
+      '& pre': {
+        backgroundColor: '#0d1117 !important',
+        borderRadius: `${theme.shape.borderRadius}px !important`,
+        border: `1px solid ${theme.palette.background.paper} !important`,
+        '& code': {
+          backgroundColor: '#0d1117 !important',
+        },
+      },
+      '& table': {
+        backgroundColor: '#0d1117',
+        border: `1px solid ${theme.palette.background.paper}`,
+        borderRadius: `${theme.shape.borderRadius}px`,
+        padding: '5px',
       },
     },
   })
@@ -38,6 +72,7 @@ export const RenderMarkdown = (props: Props) => {
         return uri;
       }}
       plugins={[gfm, html]}
+      renderers={{ code: CodeBlock }}
       children={props.markdown}
     />
   );

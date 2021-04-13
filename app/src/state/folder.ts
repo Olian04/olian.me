@@ -2,7 +2,6 @@ import { atom, atomFamily, selector, selectorFamily } from 'recoil';
 import {
   getFolder,
   getRootFolder,
-  setFolder,
 } from '../services/firebase/firestore';
 import { Folder } from '../types/Folder';
 
