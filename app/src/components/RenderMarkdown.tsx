@@ -2,6 +2,7 @@ import React from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { cb as style } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
+import { Table as MuiTable } from '@material-ui/core';
 import gfm from 'remark-gfm';
 import html from 'remark-html';
 
@@ -42,12 +43,6 @@ const useStyles = makeStyles((theme: Theme) =>
           backgroundColor: '#0d1117 !important',
         },
       },
-      '& table': {
-        backgroundColor: '#0d1117',
-        border: `1px solid ${theme.palette.background.paper}`,
-        borderRadius: `${theme.shape.borderRadius}px`,
-        padding: '5px',
-      },
     },
   })
 );
@@ -72,7 +67,9 @@ export const RenderMarkdown = (props: Props) => {
         return uri;
       }}
       plugins={[gfm, html]}
-      renderers={{ code: CodeBlock }}
+      renderers={{
+        code: CodeBlock,
+      }}
       children={props.markdown}
     />
   );

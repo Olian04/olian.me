@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
 import { ButtonGroup, Paper, Grid, CircularProgress } from '@material-ui/core';
 import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
@@ -6,10 +6,19 @@ import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
 import { DocumentReaderHeading } from '../components/DucumentReaderHeading';
 import { RenderMarkdown } from '../components/RenderMarkdown';
 import { EditDocument } from '../components/EditDocument';
-import { currentFileData, fileData } from '../state/file';
-import { getFile, setFile } from '../services/firebase/firestore';
+import { currentFileData, currentFileIDState, fileData } from '../state/file';
+import { getFile, setFile, deleteFile } from '../services/firebase/firestore';
 import { userIsAuthenticatedState } from '../state/user';
-import { editorContentState, editorIsActiveState } from '../state/editor';
+import {
+  editorContentState,
+  editorIsActiveState,
+  editorNameState,
+} from '../state/editor';
+import {
+  currentFolderData,
+  currentFolderIDState,
+  folderData,
+} from '../state/folder';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,13 +41,16 @@ const Content = () => {
   const isAuthenticated = useRecoilValue(userIsAuthenticatedState);
   const [isEditActive, setIsEditActive] = useRecoilState(editorIsActiveState);
   const [editContent, setEditContent] = useRecoilState(editorContentState);
+  const [editName, setEditName] = useRecoilState(editorNameState);
 
   const activateEdit = () => {
     setEditContent(currentFile.content);
+    setEditName(currentFile.name);
     setIsEditActive(true);
   };
   const discardChanges = () => {
     setEditContent('');
+    setEditName('');
     setIsEditActive(false);
   };
 
@@ -47,11 +59,28 @@ const Content = () => {
     const id = await setFile({
       ...currentValue,
       content: editContent,
+      name: editName,
     });
     const newValue = await getFile(id);
     set(fileData(id), newValue);
     set(editorIsActiveState, false);
     set(editorContentState, '');
+    set(editorNameState, '');
+  });
+
+  const removeFile = useRecoilCallback(({ set, snapshot }) => async () => {
+    deleteFile(currentFile.id);
+    set(currentFileIDState, null);
+    set(editorIsActiveState, false);
+    set(editorContentState, '');
+    set(editorNameState, '');
+
+    const currentFolder = await snapshot.getPromise(currentFolderData);
+    set(folderData(currentFolder.id), {
+      ...currentFolder,
+      files: currentFolder.files.filter((id) => id !== currentFile.id),
+    });
+    set(currentFolderIDState, currentFolder.id);
   });
 
   return (
@@ -72,6 +101,8 @@ const Content = () => {
         onClickEdit={activateEdit}
         onClickSave={saveChanges}
         onClickDiscard={discardChanges}
+        onNameChange={setEditName}
+        onClickDelete={removeFile}
       />
       <Paper className={classes.document}>
         {isAuthenticated && isEditActive ? (

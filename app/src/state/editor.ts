@@ -9,3 +9,8 @@ export const editorContentState = atom<string>({
   key: 'EDITOR_CONTENT',
   default: '',
 });
+
+export const editorNameState = atom<string>({
+  key: 'EDITOR_NAME',
+  default: '',
+});
