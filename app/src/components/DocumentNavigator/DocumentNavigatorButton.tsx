@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props extends Omit<ButtonProps, 'variant' | 'name'> {
-  variant: 'file' | 'folder' | 'highlight';
+  variant: 'file' | 'folder' | 'highlight' | 'plain';
   name: string;
   timestamp?: Date;
   endText?: string;
@@ -77,6 +77,11 @@ export const DocumentNavigatorButton = (props: Props) => {
         />
       );
     default:
-      return <DocumentNavigatorButtonBase {...innerProps} />;
+      return (
+        <DocumentNavigatorButtonBase
+          className={clsx(classes.base, className ?? '')}
+          {...innerProps}
+        />
+      );
   }
 };

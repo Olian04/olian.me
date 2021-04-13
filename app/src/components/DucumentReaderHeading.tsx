@@ -1,19 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
+import { Paper, Grid, IconButton, TextField } from '@material-ui/core';
 import {
-  ButtonGroup,
-  Paper,
-  Grid,
-  IconButton,
-  CircularProgress,
-} from '@material-ui/core';
-import { Edit as EditIcon, Subject as SubjectIcon } from '@material-ui/icons';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+  Edit as EditIcon,
+  Subject as SubjectIcon,
+  Save as SaveIcon,
+  Clear as DiscardIcon,
+  DeleteOutline as DeleteIcon,
+} from '@material-ui/icons';
 import clsx from 'clsx';
-
-import { RenderMarkdown } from '../components/RenderMarkdown';
-import { currentFileData, fileData } from '../state/file';
-import { getFile, setFile } from '../services/firebase/firestore';
+import { PopupVerify } from './PopupVerify';
+import { EditDocumentTitle } from './EditDocumentTitle';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -45,7 +42,13 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   fileName: string;
   isAuthenticated: boolean;
+  isEditActive: boolean;
+  isLoading: boolean;
   onClickEdit?: () => void;
+  onClickSave?: () => void;
+  onClickDiscard?: () => void;
+  onClickDelete?: () => void;
+  onNameChange?: (newTitle: string) => void;
   className?: string;
 }
 
@@ -54,24 +57,84 @@ export const DocumentReaderHeading = (props: Props) => {
     fileName,
     className,
     isAuthenticated,
+    isEditActive,
+    isLoading,
     onClickEdit,
+    onClickSave,
+    onClickDiscard,
+    onClickDelete,
+    onNameChange,
     ...innerProps
   } = props;
   const classes = useStyles();
+  const [verifyDeleteOpen, setVerifyDeleteOpen] = useState(false);
 
   return (
-    <Paper className={clsx(classes.heading, className ?? '')} {...innerProps}>
-      <Grid container justify="space-between">
-        <Grid item xs container alignItems="center">
-          <SubjectIcon className={classes.subjectIcon} />
-          <span style={{ paddingLeft: '5px' }}>{fileName}</span>
+    <>
+      <PopupVerify
+        open={verifyDeleteOpen}
+        onSuccess={() => {
+          setVerifyDeleteOpen(false);
+          if (onClickDelete) {
+            onClickDelete();
+          }
+        }}
+        onDismiss={() => {
+          setVerifyDeleteOpen(false);
+        }}
+        subject={`Delete ${fileName}?`}
+        description={`Are you sure you want to delete ${fileName}?`}
+      />
+      <Paper className={clsx(classes.heading, className ?? '')} {...innerProps}>
+        <Grid container justify="space-between">
+          <Grid item xs container alignItems="center">
+            <SubjectIcon className={classes.subjectIcon} />
+            {isAuthenticated && isEditActive ? (
+              <EditDocumentTitle
+                initialContent={fileName}
+                onChange={onNameChange ?? (() => {})}
+              />
+            ) : (
+              <span style={{ paddingLeft: '5px' }}>{fileName}</span>
+            )}
+          </Grid>
+          {isAuthenticated ? (
+            isEditActive ? (
+              <>
+                <IconButton
+                  className={classes.editIcon}
+                  onClick={() => setVerifyDeleteOpen(true)}
+                  disabled={isLoading}
+                >
+                  <DeleteIcon />
+                </IconButton>
+                <IconButton
+                  className={classes.editIcon}
+                  onClick={onClickSave}
+                  disabled={isLoading}
+                >
+                  <SaveIcon />
+                </IconButton>
+                <IconButton
+                  className={classes.editIcon}
+                  onClick={onClickDiscard}
+                  disabled={isLoading}
+                >
+                  <DiscardIcon />
+                </IconButton>
+              </>
+            ) : (
+              <IconButton
+                className={classes.editIcon}
+                onClick={onClickEdit}
+                disabled={isLoading}
+              >
+                <EditIcon />
+              </IconButton>
+            )
+          ) : null}
         </Grid>
-        {isAuthenticated ? (
-          <IconButton className={classes.editIcon} onClick={onClickEdit}>
-            <EditIcon />
-          </IconButton>
-        ) : null}
-      </Grid>
-    </Paper>
+      </Paper>
+    </>
   );
 };
