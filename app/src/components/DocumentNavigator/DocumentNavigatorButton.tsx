@@ -14,6 +14,9 @@ const useStyles = makeStyles((theme: Theme) =>
     fileIcon: {
       color: theme.palette.info.light,
     },
+    fileIconActive: {
+      color: theme.palette.secondary.main,
+    },
     folderIcon: {
       color: theme.palette.primary.main,
     },
@@ -43,19 +46,26 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props extends Omit<ButtonProps, 'variant' | 'name'> {
   variant: 'file' | 'folder' | 'highlight' | 'plain';
   name: string;
+  active?: boolean;
   timestamp?: Date;
   endText?: string;
 }
 
 export const DocumentNavigatorButton = (props: Props) => {
-  const { variant, className, ...innerProps } = props;
+  const { variant, className, active, ...innerProps } = props;
   const classes = useStyles();
 
   switch (variant) {
     case 'file':
       return (
         <DocumentNavigatorButtonBase
-          startIcon={<FileIcon className={classes.fileIcon} />}
+          startIcon={
+            <FileIcon
+              className={
+                props.active ? classes.fileIconActive : classes.fileIcon
+              }
+            />
+          }
           className={clsx(classes.base, className ?? '')}
           {...innerProps}
         />

@@ -1,20 +1,20 @@
 import { selectorFamily, atom, selector, atomFamily } from 'recoil';
-import { getFile, getRootReadme } from '../services/firebase/firestore';
+import { getFile, getRootReadmeID } from '../services/firebase/firestore';
 import { File } from '../types/File';
 import { currentFolderData } from './folder';
 
-export const currentFileIDState = atom<string | null>({
+export const currentFileIDState = atom<string>({
   key: 'CURRENT_FILE_ID',
-  default: null,
+  default: selector({
+    key: 'CURRENT_FILE_ID/DEFAULT',
+    get: () => getRootReadmeID(),
+  }),
 });
 
 export const currentFileData = selector<File>({
   key: 'CURRENT_FILE_DATA',
   get: ({ get }) => {
     const id = get(currentFileIDState);
-    if (id === null) {
-      return getRootReadme();
-    }
     return get(fileData(id));
   },
 });

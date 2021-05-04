@@ -1,39 +1,47 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import { useRecoilStateLoadable } from 'recoil';
 
 import { currentFolderIDState } from '../state/folder';
 import { currentFileIDState } from '../state/file';
-import { useRecoilState } from 'recoil';
 
 export const NavProvider = () => {
-  const [currentFolderID, setCurrentFolderID] = useRecoilState(
+  const [loadableCurrentFolderID, setCurrentFolderID] = useRecoilStateLoadable(
     currentFolderIDState
   );
-  const [currentFileID, setCurrentFileID] = useRecoilState(currentFileIDState);
+  const [loadableCurrentFileID, setCurrentFileID] = useRecoilStateLoadable(
+    currentFileIDState
+  );
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     if (query.has('fi')) {
-      setCurrentFileID(query.get('fi'));
+      const fileID = query.get('fi');
+      if (fileID !== null) {
+        setCurrentFileID(fileID);
+      }
     }
     if (query.has('fo')) {
-      setCurrentFolderID(query.get('fo'));
+      const folderID = query.get('fo');
+      if (folderID !== null) {
+        setCurrentFolderID(folderID);
+      }
     }
   }, []);
 
   useEffect(() => {
     const url = new URL(location.href);
-    if (currentFileID) {
-      url.searchParams.set('fi', currentFileID);
+    if (loadableCurrentFileID.state === 'hasValue') {
+      url.searchParams.set('fi', loadableCurrentFileID.contents);
     } else {
       url.searchParams.delete('fi');
     }
-    if (currentFolderID) {
-      url.searchParams.set('fo', currentFolderID);
+    if (loadableCurrentFolderID.state === 'hasValue') {
+      url.searchParams.set('fo', loadableCurrentFolderID.contents);
     } else {
       url.searchParams.delete('fo');
     }
     history.pushState({}, '', url.toString());
-  }, [currentFolderID, currentFileID]);
+  }, [loadableCurrentFolderID.contents, loadableCurrentFileID.contents]);
 
   return null;
 };

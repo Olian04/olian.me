@@ -59,11 +59,9 @@ export const RenderMarkdown = (props: Props) => {
       className={classes.document}
       linkTarget="_blank"
       transformImageUri={(uri) => {
-        console.log('Image', uri);
         return uri;
       }}
       transformLinkUri={(uri) => {
-        console.log('Link', uri);
         return uri;
       }}
       plugins={[gfm, html]}

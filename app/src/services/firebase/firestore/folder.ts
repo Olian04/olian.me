@@ -2,20 +2,11 @@ import { store } from './index';
 import { Folder } from '../../../types/Folder';
 import { refToId, refArrayToIdArray, idArrayToRefArray, idToRef } from './util';
 
-export const getRootFolder = async () => {
+export const getRootFolderID = async () => {
   const {
     docs: [root],
   } = await store.collection('folders').where('name', '==', 'root').get();
-
-  const folder: Folder = {
-    id: root.id,
-    name: root.get('name') as string,
-    parent: refToId(root.get('parent')),
-    files: refArrayToIdArray(root.get('files') ?? []),
-    folders: refArrayToIdArray(root.get('folders') ?? []),
-  };
-
-  return folder;
+  return root.id;
 };
 
 export const getFolder = async (id: string) => {

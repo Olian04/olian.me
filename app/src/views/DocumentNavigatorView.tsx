@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { useRecoilCallback, useRecoilValue, useSetRecoilState } from 'recoil';
+import {
+  useRecoilCallback,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from 'recoil';
 import { Paper, Grid, CircularProgress, IconButton } from '@material-ui/core';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
 import {
@@ -50,7 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export const Content = () => {
   const classes = useStyles();
   const setCurrentFolderID = useSetRecoilState(currentFolderIDState);
-  const setCurrentFileID = useSetRecoilState(currentFileIDState);
+  const [currentFileID, setCurrentFileID] = useRecoilState(currentFileIDState);
   const currentFolder = useRecoilValue(currentFolderData);
   const folders = useRecoilValue(foldersInCurrentFolder);
   const files = useRecoilValue(filesInCurrentFolder);
@@ -62,6 +67,11 @@ export const Content = () => {
   }>({
     open: false,
     variant: 'file',
+  });
+
+  const resetNavigation = useRecoilCallback(({ reset }) => () => {
+    reset(currentFileIDState);
+    reset(currentFolderIDState);
   });
 
   const closePopup = () =>
@@ -128,6 +138,7 @@ export const Content = () => {
           user={user}
           onSignIn={startLoginSequence}
           onSignOut={logout}
+          onClickLogo={resetNavigation}
         />
         {isAuthenticated ? (
           <DocumentNavigatorButton
@@ -162,6 +173,7 @@ export const Content = () => {
             key={`file-${i}`}
             variant="file"
             name={file.name}
+            active={file.id === currentFileID}
             timestamp={file.lastEdited}
             onClick={() => setCurrentFileID(file.id)}
           />
@@ -187,6 +199,10 @@ export const Content = () => {
 const Loading = () => {
   const classes = useStyles();
   const [user, startLoginSequence, logout] = useGithubAuth();
+  const resetNavigation = useRecoilCallback(({ reset }) => () => {
+    reset(currentFileIDState);
+    reset(currentFolderIDState);
+  });
 
   return (
     <DocumentNavigatorGroup>
@@ -194,6 +210,7 @@ const Loading = () => {
         user={user}
         onSignIn={startLoginSequence}
         onSignOut={logout}
+        onClickLogo={resetNavigation}
       />
       <Paper className={classes.loadingPlaceholder}>
         <Grid container justify="space-around" alignContent="center">
