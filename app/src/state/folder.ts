@@ -1,19 +1,19 @@
 import { atom, atomFamily, selector, selectorFamily } from 'recoil';
-import { getFolder, getRootFolder } from '../services/firebase/firestore';
+import { getFolder, getRootFolderID } from '../services/firebase/firestore';
 import { Folder } from '../types/Folder';
 
-export const currentFolderIDState = atom<string | null>({
+export const currentFolderIDState = atom<string>({
   key: 'CURRENT_FOLDER_ID',
-  default: null,
+  default: selector({
+    key: 'CURRENT_FOLDER_ID/DEFAULT',
+    get: () => getRootFolderID(),
+  }),
 });
 
 export const currentFolderData = selector<Folder>({
   key: 'CURRENT_FOLDER_DATA',
   get: ({ get }) => {
     const id = get(currentFolderIDState);
-    if (id === null) {
-      return getRootFolder();
-    }
     return get(folderData(id));
   },
 });

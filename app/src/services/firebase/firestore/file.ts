@@ -1,7 +1,7 @@
 import { store } from './index';
 import { File } from '../../../types/File';
 import { timestampToDate, dateToTimestamp } from './util';
-import { getRootFolder } from './folder';
+import { getRootFolderID, getFolder } from './folder';
 
 export const getFile = async (id: string) => {
   const doc = await store.doc(`/documents/${id}`).get();
@@ -20,8 +20,9 @@ export const getFile = async (id: string) => {
   return file;
 };
 
-export const getRootReadme = async () => {
-  const { files } = await getRootFolder();
+export const getRootReadmeID = async () => {
+  const rootFolderID = await getRootFolderID();
+  const { files } = await getFolder(rootFolderID);
   const { docs } = await store
     .collection('documents')
     .where('name', '==', 'README.md')
@@ -33,14 +34,7 @@ export const getRootReadme = async () => {
     throw new Error('Failed to locate root README.md file');
   }
 
-  const file: File = {
-    id: rootReadme.id,
-    name: rootReadme.get('name') as string,
-    content: rootReadme.get('content') as string,
-    lastEdited: timestampToDate(rootReadme.get('lastEdited')),
-  };
-
-  return file;
+  return rootReadme.id;
 };
 
 const updateFile = async (file: Pick<File, 'id' | 'name' | 'content'>) =>

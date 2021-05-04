@@ -54,34 +54,38 @@ const Content = () => {
     setIsEditActive(false);
   };
 
-  const saveChanges = useRecoilCallback(({ set, snapshot }) => async () => {
-    const currentValue = await snapshot.getPromise(currentFileData);
-    const id = await setFile({
-      ...currentValue,
-      content: editContent,
-      name: editName,
-    });
-    const newValue = await getFile(id);
-    set(fileData(id), newValue);
-    set(editorIsActiveState, false);
-    set(editorContentState, '');
-    set(editorNameState, '');
-  });
+  const saveChanges = useRecoilCallback(
+    ({ set, reset, snapshot }) => async () => {
+      const currentValue = await snapshot.getPromise(currentFileData);
+      const id = await setFile({
+        ...currentValue,
+        content: editContent,
+        name: editName,
+      });
+      const newValue = await getFile(id);
+      set(fileData(id), newValue);
+      reset(editorIsActiveState);
+      reset(editorContentState);
+      reset(editorNameState);
+    }
+  );
 
-  const removeFile = useRecoilCallback(({ set, snapshot }) => async () => {
-    deleteFile(currentFile.id);
-    set(currentFileIDState, null);
-    set(editorIsActiveState, false);
-    set(editorContentState, '');
-    set(editorNameState, '');
+  const removeFile = useRecoilCallback(
+    ({ set, reset, snapshot }) => async () => {
+      deleteFile(currentFile.id);
+      reset(currentFileIDState);
+      reset(editorIsActiveState);
+      reset(editorContentState);
+      reset(editorNameState);
 
-    const currentFolder = await snapshot.getPromise(currentFolderData);
-    set(folderData(currentFolder.id), {
-      ...currentFolder,
-      files: currentFolder.files.filter((id) => id !== currentFile.id),
-    });
-    set(currentFolderIDState, currentFolder.id);
-  });
+      const currentFolder = await snapshot.getPromise(currentFolderData);
+      set(folderData(currentFolder.id), {
+        ...currentFolder,
+        files: currentFolder.files.filter((id) => id !== currentFile.id),
+      });
+      set(currentFolderIDState, currentFolder.id);
+    }
+  );
 
   return (
     <ButtonGroup
