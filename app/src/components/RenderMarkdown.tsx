@@ -43,6 +43,14 @@ const useStyles = makeStyles((theme: Theme) =>
           backgroundColor: '#0d1117 !important',
         },
       },
+      '& p': {
+        position: 'relative',
+        width: '100%',
+        '& img': {
+          position: 'relative',
+          maxWidth: '100%',
+        }
+      },
     },
   })
 );
