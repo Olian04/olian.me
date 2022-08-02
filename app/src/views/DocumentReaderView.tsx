@@ -25,8 +25,8 @@ const useStyles = makeStyles((theme: Theme) =>
     document: {
       backgroundColor: theme.palette.background.default,
       padding: '0px',
-      paddingLeft: '30px',
-      paddingRight: '30px',
+      paddingLeft: '20px',
+      paddingRight: '20px',
     },
     loadingPlaceholder: {
       backgroundColor: theme.palette.background.default,
@@ -92,10 +92,6 @@ const Content = () => {
       orientation="vertical"
       variant="contained"
       fullWidth={true}
-      style={{
-        marginTop: '20px',
-        marginBottom: '20px',
-      }}
     >
       <DocumentReaderHeading
         fileName={currentFile.name}
