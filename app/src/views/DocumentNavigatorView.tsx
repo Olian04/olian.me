@@ -136,6 +136,14 @@ export const Content = () => {
 
     const removeFolder = useRecoilCallback(({ set, reset }) => async () => {
       closeVerifyPopup();
+
+      if (files.find(f => f.id === currentFileID)) {
+        reset(currentFileIDState);
+        reset(editorIsActiveState);
+        reset(editorNameState);
+        reset(editorContentState);
+      }
+
       await deleteFolder(currentFolder.id);
       const newCurrentFolder = await getFolder(currentFolder.parent);
       set(folderData(newCurrentFolder.id), newCurrentFolder);
