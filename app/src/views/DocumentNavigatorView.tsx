@@ -5,6 +5,7 @@ import {
   useRecoilValue,
   useSetRecoilState,
 } from 'recoil';
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { Paper, Grid, CircularProgress, IconButton } from '@material-ui/core';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
 import {
@@ -196,7 +197,7 @@ export const Content = () => {
   );
 };
 
-const Loading = () => {
+const LoadingFallback = () => {
   const classes = useStyles();
   const [user, startLoginSequence, logout] = useGithubAuth();
   const resetNavigation = useRecoilCallback(({ reset }) => () => {
@@ -221,10 +222,39 @@ const Loading = () => {
   );
 };
 
+const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => {
+  const classes = useStyles();
+  const [user, startLoginSequence, logout] = useGithubAuth();
+  const resetNavigation = useRecoilCallback(({ reset }) => () => {
+    resetErrorBoundary();
+    reset(currentFileIDState);
+    reset(currentFolderIDState);
+  });
+
+  return (
+    <DocumentNavigatorGroup>
+      <DocumentNavigatorHeading
+        user={user}
+        onSignIn={startLoginSequence}
+        onSignOut={logout}
+        onClickLogo={resetNavigation}
+      />
+      <Paper className={classes.loadingPlaceholder}>
+        <h1>{error.name}</h1>
+        <p>{error.message}</p>
+      </Paper>
+    </DocumentNavigatorGroup>
+  );
+};
+
 export const DocumentNavigatorView = () => {
   return (
-    <React.Suspense fallback={<Loading />}>
-      <Content />
-    </React.Suspense>
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+    >
+      <React.Suspense fallback={<LoadingFallback />}>
+        <Content />
+      </React.Suspense>
+    </ErrorBoundary>
   );
 };

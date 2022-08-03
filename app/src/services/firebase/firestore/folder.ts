@@ -1,16 +1,16 @@
 import { store } from './index';
 import { Folder } from '../../../types/Folder';
-import { refToId, refArrayToIdArray, idArrayToRefArray, idToRef } from './util';
+import { resolvePath, refToId, refArrayToIdArray, idArrayToRefArray, idToRef } from './util';
 
 export const getRootFolderID = async () => {
   const {
     docs: [root],
-  } = await store.collection('folders').where('name', '==', 'root').get();
+  } = await store.collection(resolvePath('/folders')).where('name', '==', 'root').get();
   return root.id;
 };
 
 export const getFolder = async (id: string) => {
-  const doc = await store.doc(`/folders/${id}`).get();
+  const doc = await store.doc(resolvePath(`/folders/${id}`)).get();
   if (doc.exists === false) {
     throw new Error(`Unknown folder ${id}`);
   }
@@ -25,7 +25,7 @@ export const getFolder = async (id: string) => {
 };
 
 const updateFolder = async (folder: Folder) =>
-  store.doc(`/folders/${folder.id}`).set({
+  store.doc(resolvePath(`/folders/${folder.id}`)).set({
     name: folder.name,
     parent: idToRef('/folders/', folder.parent),
     files: idArrayToRefArray('/documents/', folder.files),
@@ -34,7 +34,7 @@ const updateFolder = async (folder: Folder) =>
 
 const createFolder = async (folder: Folder): Promise<string> =>
   store
-    .collection(`/folders`)
+    .collection(resolvePath(`/folders`))
     .add({
       name: folder.name,
       parent: idToRef('/folders/', folder.parent),
@@ -47,7 +47,7 @@ export const setFolder = async (
   folder: Pick<Folder, 'name' | 'parent' | 'files' | 'folders'> &
     Partial<Pick<Folder, 'id'>>
 ) => {
-  const ref = store.doc(`/folders/${folder.id}`);
+  const ref = store.doc(resolvePath(`/folders/${folder.id}`));
   const doc = await ref.get();
 
   if (doc.exists && folder.id) {
@@ -57,5 +57,6 @@ export const setFolder = async (
   return createFolder(folder as Folder);
 };
 
+// TODO: Remove folder ID from parent folder. Currently this function bricks site.
 export const deleteFolder = async (id: string) =>
-  store.doc(`/folders/${id}`).delete();
+  store.doc(resolvePath(`/folders/${id}`)).delete();

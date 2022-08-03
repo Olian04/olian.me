@@ -2,6 +2,7 @@ import React from 'react';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
 import { ButtonGroup, Paper, Grid, CircularProgress } from '@material-ui/core';
 import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
+import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
 import { DocumentReaderHeading } from '../components/DucumentReaderHeading';
 import { RenderMarkdown } from '../components/RenderMarkdown';
@@ -118,7 +119,7 @@ const Content = () => {
   );
 };
 
-const Loading = () => {
+const LoadingFallback = () => {
   const classes = useStyles();
   const isAuthenticated = useRecoilValue(userIsAuthenticatedState);
   const isEditActive = useRecoilValue(editorIsActiveState);
@@ -148,10 +149,43 @@ const Loading = () => {
   );
 };
 
+const ErrorFallback = ({ error }: FallbackProps) => {
+  const classes = useStyles();
+  const isAuthenticated = useRecoilValue(userIsAuthenticatedState);
+  const isEditActive = useRecoilValue(editorIsActiveState);
+
+  return (
+    <ButtonGroup
+      orientation="vertical"
+      variant="contained"
+      fullWidth={true}
+      style={{
+        marginTop: '20px',
+        marginBottom: '20px',
+      }}
+    >
+      <DocumentReaderHeading
+        fileName=""
+        isAuthenticated={isAuthenticated}
+        isEditActive={isEditActive}
+        isLoading={true}
+      />
+      <Paper className={classes.loadingPlaceholder}>
+        <h1>{error.name}</h1>
+        <p>{error.message}</p>
+      </Paper>
+    </ButtonGroup>
+  );
+};
+
 export const DocumentReaderView = () => {
   return (
-    <React.Suspense fallback={<Loading />}>
-      <Content />
-    </React.Suspense>
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+    >
+      <React.Suspense fallback={<LoadingFallback />}>
+        <Content />
+      </React.Suspense>
+    </ErrorBoundary>
   );
 };
