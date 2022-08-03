@@ -11,6 +11,7 @@ import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
 import {
   NoteAddOutlined as NewFileIcon,
   CreateNewFolder as NewFolderIcon,
+  DeleteForever as DeleteFolderIcon,
 } from '@material-ui/icons';
 
 import { useGithubAuth } from '../hooks/use-github-auth';
@@ -25,12 +26,15 @@ import { DocumentNavigatorGroup } from '../components/DocumentNavigator/Document
 import { DocumentNavigatorButton } from '../components/DocumentNavigator/DocumentNavigatorButton';
 import { DocumentNavigatorHeading } from '../components/DocumentNavigatorHeading';
 import { PopupCreateNew } from '../components/PopupCreateNew';
+import { PopupVerify } from '../components/PopupVerify';
 import { userIsAuthenticatedState } from '../state/user';
 import {
   getFile,
   getFolder,
   setFile,
   setFolder,
+  deleteFolder,
+  getRootFolderID
 } from '../services/firebase/firestore';
 import {
   editorContentState,
@@ -62,28 +66,33 @@ export const Content = () => {
   const files = useRecoilValue(filesInCurrentFolder);
   const isAuthenticated = useRecoilValue(userIsAuthenticatedState);
   const [user, startLoginSequence, logout] = useGithubAuth();
-  const [popupState, setPopupState] = useState<{
+  const [createPopupState, setCreatePopupState] = useState<{
     open: boolean;
     variant: 'folder' | 'file';
   }>({
     open: false,
     variant: 'file',
   });
+  const [verifyPopupOpen, setVerifyPopupOpen] = useState<boolean>(false);
 
   const resetNavigation = useRecoilCallback(({ reset }) => () => {
     reset(currentFileIDState);
     reset(currentFolderIDState);
   });
 
-  const closePopup = () =>
-    setPopupState({
+
+  const closeVerifyPopup = () =>
+    setVerifyPopupOpen(false);
+
+  const closeCreatePopup = () =>
+    setCreatePopupState({
       open: false,
       variant: 'file',
     });
 
   const createNew = useRecoilCallback(
     ({ set }) => async (type: 'folder' | 'file', name: string) => {
-      closePopup();
+      closeCreatePopup();
       if (type === 'file') {
         const id = await setFile({
           name,
@@ -123,16 +132,30 @@ export const Content = () => {
         set(currentFolderIDState, currentFolder.id);
         setFolder(newFolderState);
       }
-    }
-  );
+    });
+
+    const removeFolder = useRecoilCallback(({ set, reset }) => async () => {
+      closeVerifyPopup();
+      await deleteFolder(currentFolder.id);
+      const newCurrentFolder = await getFolder(currentFolder.parent);
+      set(folderData(newCurrentFolder.id), newCurrentFolder);
+      set(currentFolderIDState, newCurrentFolder.id);
+    });
 
   return (
     <>
       <PopupCreateNew
-        open={popupState.open}
-        initialType={popupState.variant}
+        open={createPopupState.open}
+        initialType={createPopupState.variant}
         onSuccess={createNew}
-        onDismiss={closePopup}
+        onDismiss={closeCreatePopup}
+      />
+      <PopupVerify
+        open={verifyPopupOpen}
+        subject='Delete folder?'
+        description='Are you sure you want to permanently delete this folder and all of its documents and subfolders?'
+        onDismiss={closeVerifyPopup}
+        onSuccess={removeFolder}
       />
       <DocumentNavigatorGroup>
         <DocumentNavigatorHeading
@@ -142,17 +165,29 @@ export const Content = () => {
           onClickLogo={resetNavigation}
         />
         {isAuthenticated ? (
-          <DocumentNavigatorButton
-            variant="plain"
-            name="Create new folder..."
-            startIcon={<NewFolderIcon className={classes.folderIcon} />}
-            onClick={() =>
-              setPopupState({
-                open: true,
-                variant: 'folder',
-              })
+          <>
+            <DocumentNavigatorButton
+              variant="plain"
+              name="Create new folder..."
+              startIcon={<NewFolderIcon className={classes.folderIcon} />}
+              onClick={() =>
+                setCreatePopupState({
+                  open: true,
+                  variant: 'folder',
+                })
+              }
+            />
+            {currentFolder.name === 'root' /* Naive solution, should check against rootFolderID */ ? null :
+              <DocumentNavigatorButton
+                variant="plain"
+                name="Delete this folder..."
+                startIcon={<DeleteFolderIcon className={classes.folderIcon} />}
+                onClick={() =>
+                  setVerifyPopupOpen(true)
+                }
+              />
             }
-          />
+          </>
         ) : null}
         {currentFolder.id === currentFolder.parent ? null : (
           <DocumentNavigatorButton
@@ -185,7 +220,7 @@ export const Content = () => {
             name="Create new file..."
             startIcon={<NewFileIcon className={classes.fileIcon} />}
             onClick={() =>
-              setPopupState({
+              setCreatePopupState({
                 open: true,
                 variant: 'file',
               })

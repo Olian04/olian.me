@@ -1,6 +1,7 @@
 import { store } from './index';
 import { Folder } from '../../../types/Folder';
-import { resolvePath, refToId, refArrayToIdArray, idArrayToRefArray, idToRef } from './util';
+import { deleteFile } from './file';
+import { resolvePath, refToId, refArrayToIdArray, idArrayToRefArray, idToRef, Ref } from './util';
 
 export const getRootFolderID = async () => {
   const {
@@ -71,6 +72,24 @@ export const setFolder = async (
   return createFolder(folder as Folder);
 };
 
-// TODO: Remove folder ID from parent folder. Currently this function bricks site.
-export const deleteFolder = async (id: string) =>
-  store.doc(resolvePath(`/folders/${id}`)).delete();
+export const deleteFolder = async (id: string) => {
+  const folder = await store.doc(resolvePath(`/folders/${id}`)).get();
+  const parentFolder = await (folder.get('parent') as Ref).get();
+
+  // Remove soon to be orphans
+  await Promise.all([
+    ...(folder.get('files') as Ref[]).map((fileRef) => deleteFile(fileRef.id)),
+    ...(folder.get('folders') as Ref[]).map((folderRef) => deleteFolder(folderRef.id)),
+  ]);
+
+  // Remove ref to self from parent
+  parentFolder.ref.update({
+    folders: (parentFolder.get('folders') as Ref[]).filter(r => {
+      console.log(r.id, id, r.id !== id);
+      return r.id !== id;
+    }),
+  });
+
+  // Remove self
+  folder.ref.delete();
+}
