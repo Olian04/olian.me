@@ -6,6 +6,20 @@ export const getRootFolderID = async () => {
   const {
     docs: [root],
   } = await store.collection(resolvePath('/folders')).where('name', '==', 'root').get();
+  if (root === undefined) {
+    const rootID = await store
+      .collection(resolvePath(`/folders`))
+      .add({ name: 'root' })
+      .then((doc) => doc.id);
+
+    return setFolder({
+      id: rootID,
+      name: 'root',
+      parent: rootID,
+      files: [],
+      folders: [],
+    });
+  }
   return root.id;
 };
 

@@ -1,7 +1,7 @@
 import { store } from './index';
 import { File } from '../../../types/File';
 import { resolvePath, timestampToDate, dateToTimestamp, idToRef, Ref } from './util';
-import { getRootFolderID, getFolder } from './folder';
+import { getRootFolderID, getFolder, setFolder } from './folder';
 
 export const getFile = async (id: string) => {
   const doc = await store.doc(resolvePath(`/documents/${id}`)).get();
@@ -31,7 +31,19 @@ export const getRootReadmeID = async () => {
   const rootReadme = docs.find((d) => files.indexOf(d.id) >= 0);
 
   if (rootReadme === undefined) {
-    throw new Error('Failed to locate root README.md file');
+    const rootReadmeID = await setFile({
+      name: 'README.md',
+      content: '# Hello World'
+    });
+    const rootFolder = await getFolder(rootFolderID);
+    await setFolder({
+      ...rootFolder,
+      files: [
+        ...rootFolder.files,
+        rootReadmeID,
+      ],
+    });
+    return rootReadmeID;
   }
 
   return rootReadme.id;

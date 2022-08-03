@@ -4,7 +4,7 @@ import { isLocalhost } from '../../../util/detectLocalhost';
 
 export type Ref = firebase.firestore.DocumentReference;
 
-const devVersion = 1;
+const devVersion = 2;
 export const resolvePath = (path: string) => isLocalhost
   ? `/development/v${devVersion}${path}`
   : path;
